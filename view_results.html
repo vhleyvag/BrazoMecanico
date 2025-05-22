@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados del Cuestionario - Supabase</title>
+    <!-- Incluir Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        #loading-message, #error-message {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        #error-message {
+            color: red;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: block; /* Para centrarlo fácilmente */
+            margin: 20px auto 0; /* Espacio arriba y centrado */
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados de Cuestionarios Almacenados</h1>
+
+        <div id="loading-message">Cargando resultados...</div>
+        <div id="error-message" style="display:none;"></div>
+
+        <table id="results-table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha de Creación</th>
+                    <th>Grupo</th>
+                    <th>Nombre</th>
+                    <th>Calificación</th>
+                    <!-- Puedes añadir más columnas si las tienes en tu tabla -->
+                </tr>
+            </thead>
+            <tbody id="results-body">
+                <!-- Las filas de datos se insertarán aquí por JavaScript -->
+            </tbody>
+        </table>
+        <button onclick="fetchResults()">Actualizar Resultados</button>
+    </div>
+
+    <script>
+        // --- USA TUS MISMAS CREDENCIALES DE SUPABASE ---
+        const SUPABASE_URL = 'https://uqjihrzacogbzofkzkxj.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxamlocnphY29nYnpvZmt6a3hqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5Mzg1MzksImV4cCI6MjA2MzUxNDUzOX0.EjsqfO_7SQCNZtHpgHtiyfwA1PFMnpUZBnliSEUs6iQ';
+
+        let supabase = null;
+        try {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase client initialized for viewing results.");
+            } else {
+                throw new Error("Supabase URL o Clave Anon no están configuradas.");
+            }
+        } catch (error) {
+            console.error("Error initializing Supabase client:", error);
+            document.getElementById('loading-message').style.display = 'none';
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = `Error al conectar con la base de datos: ${error.message}`;
+            errorDiv.style.display = 'block';
+        }
+
+        const resultsTable = document.getElementById('results-table');
+        const resultsBody = document.getElementById('results-body');
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessage = document.getElementById('error-message');
+
+        async function fetchResults() {
+            if (!supabase) {
+                errorMessage.textContent = "La conexión con Supabase no está inicializada.";
+                errorMessage.style.display = 'block';
+                loadingMessage.style.display = 'none';
+                return;
+            }
+
+            resultsTable.style.display = 'none';
+            resultsBody.innerHTML = ''; // Limpiar resultados anteriores
+            errorMessage.style.display = 'none';
+            loadingMessage.style.display = 'block';
+
+            try {
+                // Reemplaza 'quiz_results' con el nombre real de tu tabla si es diferente
+                // Ordena por 'created_at' en orden descendente para ver los más recientes primero
+                const { data, error } = await supabase
+                    .from('quiz_results') // NOMBRE DE TU TABLA AQUÍ
+                    .select('*') // Selecciona todas las columnas
+                    .order('created_at', { ascending: false }); // Opcional: ordenar
+
+                if (error) {
+                    console.error("Supabase select error object:", error);
+                    throw error;
+                }
+
+                loadingMessage.style.display = 'none';
+
+                if (data && data.length > 0) {
+                    data.forEach(result => {
+                        const row = resultsBody.insertRow();
+                        row.insertCell().textContent = result.id;
+                        row.insertCell().textContent = new Date(result.created_at).toLocaleString(); // Formatear fecha
+                        row.insertCell().textContent = result.student_group || 'N/A';
+                        row.insertCell().textContent = result.student_name || 'N/A';
+                        row.insertCell().textContent = result.score;
+                        // Añade más celdas si tienes más columnas
+                    });
+                    resultsTable.style.display = 'table';
+                } else {
+                    errorMessage.textContent = 'No se encontraron resultados.';
+                    errorMessage.style.display = 'block';
+                }
+
+            } catch (error) {
+                loadingMessage.style.display = 'none';
+                errorMessage.textContent = `Error al obtener los resultados: ${error.message}`;
+                errorMessage.style.display = 'block';
+                console.error("Error fetching results from Supabase:", error);
+            }
+        }
+
+        // Cargar resultados cuando la página se carga
+        window.onload = fetchResults;
+    </script>
+</body>
+</html>
