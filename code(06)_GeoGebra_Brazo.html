@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cuestionario Interactivo - Versión Resumida</title>
+<style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+ 
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .instructions {
+            background-color: #eef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #55a;
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container">
+<h1 id="quiz-title"></h1>
+<p class="instructions" id="quiz-instructions"></p>
+</div>
+<script>
+        const quizData = {
+          "title": "Diagnóstico inicial: comprensión del mecanismo y análisis trigonométrico",
+          "instructions": "Revisa el comportamiento del brazo mecánico, el cual sostiene un objeto de color naranja.<br>Observarás que la posición del objeto naranja depende de varias condiciones de operación y diseño: la longitud de los elementos que componen el brazo y del ángulo de rotación.<br>Coloca el punto naranja sobre el punto azul. ¿Lo lograste? <br><br>Después de analizar el comportamiento del brazo, contesta el cuestionario."
+        };
+
+        document.getElementById('quiz-title').textContent = quizData.title;
+        document.getElementById('quiz-instructions').innerHTML = quizData.instructions;
+    </script>
+</body>
+</html>
