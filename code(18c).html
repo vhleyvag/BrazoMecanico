@@ -158,7 +158,7 @@
     <script>
         const quizData = {
           "title": "",
-          "instructions": "",
+          "instructions": "Observa la imagen del brazo mecánico y su gráfica de altura. Luego, responde las siguientes preguntas. Al terminar, recibirás retroalimentación sobre cada respuesta.",
           "questions": [
             {
               "question": "¿Qué representa el valor h₂ = 6.67 en la imagen?",
@@ -351,8 +351,8 @@
         const scoreTextEl = document.getElementById('score-text');
 
         function loadQuiz() {
-            quizTitleEl.textContent = quizData.title;
-            quizInstructionsEl.textContent = quizData.instructions;
+            #quizTitleEl.textContent = quizData.title;
+            #quizInstructionsEl.textContent = quizData.instructions;
             loadQuestion();
         }
 
